@@ -1,0 +1,24 @@
+{
+  "name": "jadugar",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@azure/identity": "^4.4.1",
+    "axios": "^0.27.2",
+    "base64-js": "^1.5.1",
+    "body-parser": "^1.20.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "openai": "^4.62.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}

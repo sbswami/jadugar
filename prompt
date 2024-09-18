@@ -1,6 +1,8 @@
 You are provided with the image of an invoice. There can be multiple pages but all pages reflect a single invoice.
 The format of the invoice can vary significantly, including digital and handwritten forms, and it may also be in regional languages. 
-Your task is to extract as much information as possible from various sections of the invoice. 
+Your task is to extract as much information as possible from various sections of the invoice. Also, parse or read image keeping in mind the next line important information.
+
+MOST IMPORTANT INSTRUCTION: All company details should be fetched from billed business (against whom the bill is made), since this is a supplier bill. Think like you are a business owner and you got a bill from your supplier.
 
 Party: is the second entity in the invoice. In our invoice it's the buyer of goods/services.
 Item: is things which is being sold/transferred in the invoice. it can be goods or services. Also known as product/service.
@@ -13,6 +15,7 @@ Preprocessing:
 - Use OCR to convert the PDF or image into text.
 - Perform text cleaning to remove any noise.
 - Don't give me any kind of explaination just the JSON schema I asked for.
+- Try to make sense from the extracted data from the invoicing perspective.
 
 Section Identification:
 - Use regex patterns or machine learning models to identify the text boundaries of each section.
@@ -34,7 +37,7 @@ Info to extract:
 - business_type: String value. [retailer, wholesaler, distributor, manufacturer, services]. For example sometimes business name have wholesaler / distributer in their name, or it can be services if they provide any type of service like hotels, cleaning, etc, etc. Select only from the values I have provided
 - incorporation_type: String value. [private_limited_company, public_limited_company, partnerships_company, limited_liability_partnership, one_person_company, sole_proprietorship, section_8_company, business_not_registered] - Select only from the values I have provided.
 - gst_number: GST number of the business.
-- industry_type: String value. Select only from values safety_equipments,meat,photography,construction,salon,electrical_works,general_store,engineering,home_services,automotive,sport_equiments,gift_shop,interior_design,paints,dairy,travel,tailoring,agriculture,stationary,services,others,textiles,battery,scrap,service_centre,plywood,oil_and_gas,cable_internet,fmcg,furniture,consulting,jewellery,liquor,footwear,machinery,event_planning,packaging,utensils,mobiles_and_accessories,opticals,garment,fruit_and_vegitables,pharma,electronics,logistics,cleaning_pest,financial_services,information_technology,healthcare,education,photo_studio,real_estate,hotels,sanitary,gym,food_services,hardware. Determine this from bill for example business name might have something related to industry or, if items have tablets or either businesses have pharma or medical in their name then it's an fmcg industry type. If value not found in above list, keep it null.
+- industry_type: String value. Select only from values [safety_equipments,meat,photography,construction,salon,electrical_works,general_store,engineering,home_services,automotive,sport_equiments,gift_shop,interior_design,paints,dairy,travel,tailoring,agriculture,stationary,services,others,textiles,battery,scrap,service_centre,plywood,oil_and_gas,cable_internet,fmcg,furniture,consulting,jewellery,liquor,footwear,machinery,event_planning,packaging,utensils,mobiles_and_accessories,opticals,garment,fruit_and_vegitables,pharma,electronics,logistics,cleaning_pest,financial_services,information_technology,healthcare,education,photo_studio,real_estate,hotels,sanitary,gym,food_services,hardware]. Determine this from bill for example business name might have something related to industry or, if items have tablets or either businesses have pharma or medical in their name then it's an fmcg industry type. If value not found in above list, keep it null. Think harder here.
 - sales_invoice_tnc: String value. Complete terms and conditions mentioned in invoice.
 - email: Email of the business.
 - pan_number: PAN number of the business. If only GSTIN present in invoice, extract PAN from GSTIN.
@@ -57,22 +60,22 @@ Info to extract:
 - company_settings.invoice.additional_settings: Array of additional settings. If other invoice level values present, add in this array. Ignore Invoice Date, Invoice Number, Due Date values for these.
   - key: String value. Additional setting name.
   - value: boolean value. true by default.
-  - default: String value. If key name is kind of common information for all invoices, add that information here. else ignore.
-- company_settings.party.additional_settings: Array of additional settings. If party/buyer level values present other than name, address, gstin, mobile, PAN add that information here.
+  - default: String value. If key name is kind of common information for all invoices, add that information here. else ignore. Also, if the invoice from supoplier then it must be empty string.
+- company_settings.party.additional_settings: Array of additional settings. If party/buyer level values present other than name, address, gstin, mobile, PAN add that information here. all key values apart from these fields should be added.
   - key: String value. Additional setting name.
   - value: Empty string.
   - default: Empty string.
   - hide_column: boolean value. false by default.
 - company_settings.item.mrp_info: boolean value. If MRP column present in items table.
-- company_settings.item.inventory_batching: boolean value. Identify if batch numbers are present in invoice or enable by default if industry type is in this list: [fmcg, pharma]. Other batching related information handle based on this flag.
+- company_settings.item.inventory_batching: boolean value. Identify if batch numbers are present in invoice or enable by default if industry type is in this list: [fmcg, pharma]. Other batching related information handle based on this flag. Think harder for this flag.
 - company_settings.invoice.invoice_columns: Array of additional settings. Strictly Don't consider these column names: Item Name, Item Serial No., Item Description, HSN/SAC, Discount, Amount.
   - key: String value. Additional setting name. We have some predefined column names, if similar or same name present in invoice add that key in this array. Predefined column names are [qty (quantity), rate (price), batch no., exp. date (expiry date), mfg. date (manufacturing date)], make these smallcase. Other than these defined values, add key name same as column name present in invoice.
   - value: boolean value. true by default.
 - company_settings.serialisation: This is JSON object. Null by default.
-  - enabled: boolean value. false by default. true if any any kind of serialisation exists in invoice. example Part No., Serial No., IMEI.
+  - enabled: boolean value. false by default. true if any any kind of serialisation exists in items listing section. example Part No., Serial No., IMEI. Think serializarion in context of industry type or from invoice details.
   - description: String value. It's a key of serialisation. example IMEI, Part No., Serial No. It should not be empty if enabled is true.
 
-2. Bank Account (base key: accounts) - This would be an array of bank accounts
+2. Bank Account (base key: accounts) - This would be an array of bank accounts. Must only be fetched if I am specifying the invoice as a supplier invoice.
 
 - account_holder_name: String value. Name of the account holder.
 - account_number: String value. Account number.
