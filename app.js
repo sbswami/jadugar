@@ -16,8 +16,6 @@ const IMAGE_PATH = "samples/Nanonets photo (2).jpeg";
 const imageBuffer = fs.readFileSync(IMAGE_PATH);
 const encodedImage = base64.fromByteArray(imageBuffer);
 
-console.log(API_KEY);
-
 const headers = {
   "Content-Type": "application/json",
   "api-key": API_KEY
