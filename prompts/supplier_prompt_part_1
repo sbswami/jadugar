@@ -1,0 +1,48 @@
+Info to extract:
+1. Company (base key: company) - This refers to the buyer's company (user's company)
+
+* company_name: Name of the buyer's business.
+* mobile_number: You can not just put any information here from your memory, since this is very critical invoice. Only fill the information which you are getting from image.
+* business_type: String value. [retailer, wholesaler, distributor, manufacturer, services]. For example sometimes business name have wholesaler / distributer in their name, or it can be services if they provide any type of service like hotels, cleaning, etc, etc. Select only from the values I have provided
+* incorporation_type: String value. [private_limited_company, public_limited_company, partnerships_company, limited_liability_partnership, one_person_company, sole_proprietorship, section_8_company, business_not_registered] - Select only from the values I have provided.
+* gst_number: GST number of the buyer's business.
+* industry_type: String value. Select only from values [safety_equipments,meat,photography,construction,salon,electrical_works,general_store,engineering,home_services,automotive,sport_equiments,gift_shop,interior_design,paints,dairy,travel,tailoring,agriculture,stationary,services,others,textiles,battery,scrap,service_centre,plywood,oil_and_gas,cable_internet,fmcg,furniture,consulting,jewellery,liquor,footwear,machinery,event_planning,packaging,utensils,mobiles_and_accessories,opticals,garment,fruit_and_vegitables,pharma,electronics,logistics,cleaning_pest,financial_services,information_technology,healthcare,education,photo_studio,real_estate,hotels,sanitary,gym,food_services,hardware]. Determine this from bill for example business name might have something related to industry or, if items have tablets or either businesses have pharma or medical in their name then it's an fmcg industry type. If value not found in above list, keep it null. Think harder here.
+* email: Email of the buyer's business.
+* pan_number: PAN number of the buyer's business. If only GSTIN present in invoice, extract PAN from GSTIN.
+* address: Address of the buyer's business. It's a JSON object with the following keys:
+  * addressable_type: String value. Make this hardcoded as "Company".
+  * city: String value. City of the buyer's business.
+  * pincode: String value. Pincode of the buyer's business.
+  * state: String value. State of the buyer's business.
+  * street_address: String value. Street address of the buyer's business.
+* company_logo: String value. Generate a prompt to create a logo based on company_name, industry_type, and items present in the invoice. Prompt should be short and concise (100 characters).
+* company_settings.invoice.invoice_theme: String value. Theme of the invoice 
+  1. theme_three: If the invoice is Tax Invoice
+  2. theme_seven: For all other invoices
+* company_settings.invoice.show_previous_balance: boolean value. If invoice has mentioned previous balance.
+* company_settings.invoice.show_item_description: boolean value. If extra details present along with full item name.
+* company_settings.invoice.vehicle_number: boolean value. If vehicle number mentioned in invoice.
+* company_settings.invoice.po_number: boolean value. If purchase order number mentioned in invoice, else keep it false.
+* company_settings.invoice.eway_bill_number: boolean value. If eway bill number mentioned in invoice.
+* company_settings.invoice.business_additional_settings: Array of additional settings. If business level values present, add in this array. Email, name, address, mobile, pan, gstin. Add other than these fields.
+  * key: String value. Additional setting name.
+  * value: String value. Additional setting value.
+  * Usage Context: If you find anything related to serialisation like Part No., IMEI, Serial No., you must have to skip that information.
+* company_settings.invoice.additional_settings: Array of additional settings. If other invoice level values present, add in this array. Ignore Invoice Date, Invoice Number, Due Date, IRN, Ack No, and Ack Date values for these.
+  * key: String value. Additional setting name.
+  * value: boolean value. true by default.
+  * default: String value. If key name is kind of common information for all invoices, add that information here. else ignore. Also, if the invoice from supplier then it must be empty string.
+* company_settings.party.additional_settings: Array of additional settings. Don't add these fields: name, email, address, gstin, mobile, PAN, and add that information here apart from these fields. all key values apart from these fields should be added.
+  * key: String value. Additional setting name.
+  * value: Empty string.
+  * default: Empty string.
+  * hide_column: boolean value. false by default.
+* company_settings.item.mrp_info: boolean value. If MRP column present in items table.
+* company_settings.item.inventory_batching: boolean value. Set this to true only if a batch number column is visible on the invoice. Do not consider the industry type for this decision.
+* company_settings.invoice.invoice_columns: Array of additional settings. Strictly Don't consider these column names: Item Name, Item Serial No., Item Description, HSN/SAC, Discount, Amount, UOM, Taxable Amount, CGST, SGST, IGST, Total Amount, and other similar terminologies.
+  * key: String value. Additional setting name. We have some predefined column names, if similar or same name present in invoice add that key in this array. Predefined column names are [qty (quantity), rate (price), batch no., exp. date (expiry date), mfg. date (manufacturing date)], make these smallcase. Other than these defined values, add key name same as column name present in invoice.
+  * value: boolean value. true by default.
+* company_settings.serialisation: This is a JSON object for tracking unique item codes.
+  * enabled: Boolean value (false by default). Set to true if the items listed in the invoice have unique serial numbers (e.g., IMEI for mobile phones, serial numbers for electronics and IT products). Serialization should be enabled if the industry type aligns with industries like mobile phones, electronics, and IT.
+  * description: String value. This is the key for serialization (e.g., IMEI, Part No., Serial No.). If enabled is true, this field must be populated with the relevant serial identifier.
+  * Usage Context: Serialization is particularly useful for inventory management and tracking sold items. When customers return for repairs or replacements under warranty, businesses can use these unique serial numbers to find sales invoices and track product history.

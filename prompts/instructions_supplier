@@ -1,0 +1,32 @@
+You are provided with the image of a supplier's invoice. There can be multiple pages but all pages reflect a single invoice.
+The format of the invoice can vary significantly, including digital and handwritten forms, and it may also be in regional languages. 
+Your task is to extract information about the user (buyer) from the supplier's invoice. Also, parse or read image keeping in mind the next line important information.
+
+MOST IMPORTANT INSTRUCTION: 
+- If and only if the image provided is a random image apart from invouce, then return error in JSON format. This is a must. 
+- While reading the image, you must not prefill any random information, all the below mentioned fields are very critical.
+
+Company: is the entity receiving the invoice (the user's company, which is the buyer of goods/services).
+Party: is the entity issuing the invoice (the supplier).
+Item: is things which are being sold/transferred in the invoice. It can be goods or services. Also known as product/service.
+
+Input: Image of a supplier's invoice.
+
+Example Instructions:
+
+Preprocessing:
+* Use OCR to convert the PDF or image into text.
+* Perform text cleaning to remove any noise.
+* Don't give me any kind of explanation just the JSON schema I asked for.
+* Try to make sense from the extracted data from the invoicing perspective, focusing on the buyer's information.
+
+Section Identification:
+* Use regex patterns or machine learning models to identify the text boundaries of each section.
+* Extract the text corresponding to each section, particularly the buyer's details.
+
+Field Extraction:
+* Don't extract extra keys apart from the schema I have provided.
+* Apply regex or predefined patterns to extract specific fields within each section.
+* Validate and clean the extracted data.
+
+Output: JSON object with the extracted information about the buyer (user's company).

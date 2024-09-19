@@ -1,22 +1,15 @@
-const express = require("express");
+const router = require("express").Router();
+
 const fs = require("fs");
 const path = require("path");
 const multer = require("multer");
-const dotenv = require("dotenv");
 const AWS = require("aws-sdk");
-const uuid = require("uuid");
 const { fromBuffer } = require("pdf2pic");
 
-// Load environment variables from .env file
-dotenv.config();
-
-const app = express();
-const port = process.env.PORT || 3000;
-app.use(express.json());
 const upload = multer({ limits: { fileSize: 10 * 1024 * 1024 } }); // 10 MB limit
 
 // Validate critical environment variables
-const { ACCESS_KEY, SECRET_KEY, PORT } = process.env;
+const { ACCESS_KEY, SECRET_KEY } = process.env;
 if (!ACCESS_KEY || !SECRET_KEY) {
   throw new Error("Missing AWS credentials in environment variables.");
 }
@@ -33,15 +26,34 @@ AWS.config.update({
 // Create Bedrock Runtime client
 const bedrockRuntime = new AWS.BedrockRuntime();
 
-// Route for onboarding with file upload
-app.post("/onboard", upload.single("file"), async (req, res) => {
-  const { supplier } = req.body;
+const instructionsOwnBill = fs.readFileSync(
+  path.join(__dirname, "../prompts/instructions_main"),
+  "utf8"
+);
+const instructionsSupplierBill = fs.readFileSync(
+  path.join(__dirname, "../prompts/instructions_supplier"),
+  "utf8"
+);
 
-  let promptContent;
+// Route for onboarding with file upload
+router.post("/onboard", upload.single("file"), async (req, res) => {
+  const supplier = Boolean(req.body.supplier);
+
+  let promptContent1;
+  let promptContent2;
+
   if (supplier) {
-    promptContent = fs.readFileSync(path.join(__dirname, "supplier"), "utf8");
+    promptContent1 = fs.readFileSync(
+      path.join(__dirname, "../prompts/supplier_prompt_part_1"),
+      "utf8"
+    );
+    promptContent2 = fs.readFileSync(
+      path.join(__dirname, "../prompts/supplier_prompt_part_2"),
+      "utf8"
+    );
   } else {
-    promptContent = fs.readFileSync(path.join(__dirname, "main_prompt"), "utf8");
+    promptContent1 = fs.readFileSync(path.join(__dirname, "../prompts/main_prompt_part_1"), "utf8");
+    promptContent2 = fs.readFileSync(path.join(__dirname, "../prompts/main_prompt_part_2"), "utf8");
   }
 
   try {
@@ -64,16 +76,28 @@ app.post("/onboard", upload.single("file"), async (req, res) => {
       return res.status(400).json({ error: "Unsupported file type" });
     }
 
-    // Invoke LLM with the prompt and image
-    const response = await invokeLLM(promptContent, base64Image, mimeType);
+    // Make API calls in parallel
+    const [response1, response2] = await Promise.all([
+      invokeLLM(
+        promptContent1,
+        base64Image,
+        mimeType,
+        supplier ? instructionsSupplierBill : instructionsOwnBill
+      ),
+      invokeLLM(
+        promptContent2,
+        base64Image,
+        mimeType,
+        supplier ? instructionsSupplierBill : instructionsOwnBill
+      )
+    ]);
 
-    // Parse and send response
-    try {
-      const jsonResponse = JSON.parse(response);
-      res.json(jsonResponse);
-    } catch (jsonError) {
-      res.json({ content: response });
-    }
+    const combinedResponse = {
+      ...response1,
+      ...response2
+    };
+
+    res.json(combinedResponse);
   } catch (error) {
     console.error(`Failed to process the file. Error: ${error.message}`);
     res.status(500).json({ error: `Failed to process the file. Error: ${error.message}` });
@@ -81,7 +105,7 @@ app.post("/onboard", upload.single("file"), async (req, res) => {
 });
 
 // Function to invoke Bedrock's LLM
-async function invokeLLM(prompt, base64Image, mimeType) {
+async function invokeLLM(prompt, base64Image, mimeType, instructions) {
   // Validate inputs
   if (!base64Image) {
     throw new Error("Missing Base64-encoded image data.");
@@ -93,45 +117,40 @@ async function invokeLLM(prompt, base64Image, mimeType) {
 
   const params = {
     modelId: "anthropic.claude-3-5-sonnet-20240620-v1:0",
-    contentType: "application/json",
-    accept: "application/json",
-    body: JSON.stringify({
-      max_tokens: 3500,
-      anthropic_version: "bedrock-2023-05-31",
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "image",
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            text: prompt
+          },
+          {
+            image: {
+              format: "png",
               source: {
-                type: "base64",
-                media_type: mimeType,
-                data: base64Image
+                bytes: Buffer.from(base64Image, "base64")
               }
-            },
-            {
-              type: "text",
-              text: prompt
             }
-          ]
-        }
-      ],
+          }
+        ]
+      }
+    ],
+    inferenceConfig: {
+      maxTokens: 3500,
       temperature: 0.5,
-      top_p: 1,
-      top_k: 250
-    })
+      topP: 0.95
+    },
+    system: [
+      {
+        text: instructions
+      }
+    ]
   };
 
   try {
-    const response = await bedrockRuntime.invokeModel(params).promise();
-    const responseBody = JSON.parse(response.body);
-
-    if (!responseBody.content || !responseBody.content[0]) {
-      throw new Error("Unexpected response format from Bedrock model.");
-    }
-
-    return responseBody.content[0].text;
+    const response = await bedrockRuntime.converse(params).promise();
+    const responseBody = response.output.message.content[0].text;
+    return JSON.parse(responseBody);
   } catch (error) {
     console.error("Error invoking Bedrock model:", error);
     throw new Error("Failed to invoke Bedrock model.");
@@ -180,7 +199,4 @@ async function convertPdfToImage(pdfBuffer) {
   }
 }
 
-// Start server
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+module.exports = router;

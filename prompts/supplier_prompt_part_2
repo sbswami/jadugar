@@ -1,0 +1,47 @@
+Info to extract:
+1. Items (base key: items) - This is the array of items present in invoice. Strictly just extract top 3 items, no more than that otherwise I will die
+
+* name: String value. Name of the item.
+* identification_code: String value. Identification code of the item. It can be HSN/SAC.
+* quantity: String value. Quantity of the item.
+* opening_stock: String value. Opening stock of the item. null if opening_stock not found.
+* unit: String value. Unit of the item. null if unit not found.
+* units: JSON object. It's a JSON object with the following keys.
+  * primary_unit: String value. Unit of the item. null if unit not found.
+  * secondary_unit: empty array.
+* notes: String value. Notes/description of the item. null if notes not found. It's not the name of the item.
+* sales_info: JSON object. It's a JSON object with the following keys.
+  * is_tax_included: boolean value. true if tax is included in price. false if tax is not included in price.
+  * gst_percentage: String value. GST percentage of the item. null if gst_percentage not found.
+  * price_per_unit: String value. Price per unit of the item. null if rate / price per unit not found. It's the price of all quantity divided by quantity.
+* mrp: String value. MRP of the item, if MRP column present in invoice. null if mrp not found.
+* serial_nos: Array of serial numbers of the item. null if serial_nos not found.
+  * serial_no: String value. Serial number of the item.
+
+2. Party (base key: party) - This would be a single object containing party details (supplier's details).
+
+* name: String value. Name of the supplier.
+* billing_address: JSON object. It's a JSON object with the following keys.
+  * city: String value. City of the supplier.
+  * pincode: String value. Pincode of the supplier.
+  * state: String value. State of the supplier.
+  * street_address: String value. Street address of the supplier.
+* shipping_address: JSON object. It's a JSON object with the following keys.
+  * city: String value. City of the supplier.
+  * pincode: String value. Pincode of the supplier.
+  * state: String value. State of the supplier.
+  * street_address: String value. Street address of the supplier.
+* mobile_number: String value. Mobile number of the supplier.
+* gst_number: String value. GSTIN of the supplier.
+* pan_number: String value. PAN number of the supplier. or grab it from GSTIN.
+* additional_fields: Array of additional fields. It's an array of JSON objects with the following keys.
+  * key: String value. Additional field name. If any other information present in invoice apart from address, mobile, gst, pan add that information here.
+  * value: String value. Additional field value.
+* email: String value. Email of the supplier.
+* gst_reg_state: String value. GST registration state of the supplier. Determine state name from state code present in GSTIN. Else pick it from address billing address state.
+
+4. Confidence
+
+* confidence_score: String value. Confidence score of the invoice considering all the above extracted information. It should be between 0 to 100.
+
+Note: The focus is on extracting the buyer's (user's company) information from the supplier's invoice, while still capturing supplier details in the 'Party' section and maintaining all company settings and invoice settings.
