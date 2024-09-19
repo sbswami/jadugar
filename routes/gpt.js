@@ -22,8 +22,8 @@ async function getGST(base64image, supplier = false) {
           {
             type: "text",
             text: supplier
-              ? "Treat the bill as from supplier, you have to fetch GST from billed to party, and return if and only if you find it correct, otherwise null. don't share extra information, just GST number"
-              : "Find GST number from this image, and return if and only if you find it correct, otherwise null. don't share extra information, just GST number"
+              ? "Treat the bill as from supplier, you have to fetch GST from billed to party, and return if and only if you find it correct, otherwise null. don't share extra information, just GST number. otherwise I will die if you share more information."
+              : "Find GST number from this image, and return if and only if you find it correct, otherwise null. don't share extra information, just GST number.  otherwise I will die if you share more information."
           },
           { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64image}` } }
         ]
