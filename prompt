@@ -59,6 +59,9 @@ Info to extract:
 - company_settings.invoice.vehicle_number: boolean value. If vehicle number mentioned in invoice.
 - company_settings.invoice.po_number: boolean value. If purchase order number mentioned in invoice, else keep it false.
 - company_settings.invoice.eway_bill_number: boolean value. If eway bill number mentioned in invoice.
+- company_settings.invoice.business_additional_settings: Array of additional settings. If business level values present, add in this array. Email, name, address, mobile, pan, gstin. Add other than these fields.
+  - key: String value. Additional setting name.
+  - value: String value. Additional setting value.
 - company_settings.invoice.additional_settings: Array of additional settings. If other invoice level values present, add in this array. Ignore Invoice Date, Invoice Number, Due Date values for these.
   - key: String value. Additional setting name.
   - value: boolean value. true by default.
@@ -96,8 +99,29 @@ Info to extract:
 - serial_nos: Array of serial numbers of the item. null if serial_nos not found.
   - serial_no: String value. Serial number of the item.
 
+3. Party (base key: party) - This would be an array of party details.
+- name: String value. Name of the party.
+- billing_address: JSON object. It's a JSON object with the following keys.
+  - city: String value. City of the party.
+  - pincode: String value. Pincode of the party.
+  - state: String value. State of the party.
+  - street_address: String value. Street address of the party.
+- shipping_address: JSON object. It's a JSON object with the following keys.
+  - city: String value. City of the party.
+  - pincode: String value. Pincode of the party.
+  - state: String value. State of the party.
+  - street_address: String value. Street address of the party.
+- mobile_number: String value. Mobile number of the party.
+- gst_number: String value. GSTIN of the party.
+- pan_number: String value. PAN number of the party.
+- additional_fields: Array of additional fields. It's an array of JSON objects with the following keys.
+  - key: String value. Additional field name. If any other information present in invoice apart from address, mobile, gst, pan add that information here.
+  - value: String value. Additional field value.
+- email: String value. Email of the party.
+- gst_reg_state: String value. GST registration state of the party.
 
-3. Bank Account (base key: accounts) - This would be an array of bank accounts. Must only be fetched if I am specifying the invoice as a supplier invoice.
+
+4. Bank Account (base key: accounts) - This would be an array of bank accounts. Must only be fetched if I am specifying the invoice as a supplier invoice.
 
 - account_holder_name: String value. Name of the account holder.
 - account_number: String value. Account number.
