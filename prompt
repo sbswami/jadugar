@@ -2,7 +2,9 @@ You are provided with the image of an invoice. There can be multiple pages but a
 The format of the invoice can vary significantly, including digital and handwritten forms, and it may also be in regional languages. 
 Your task is to extract as much information as possible from various sections of the invoice. Also, parse or read image keeping in mind the next line important information.
 
-MOST IMPORTANT INSTRUCTION: All company details should be fetched from billed business (against whom the bill is made), since this is a supplier bill. Think like you are a business owner and you got a bill from your supplier.
+MOST IMPORTANT INSTRUCTION:
+- All company details should be fetched from billed business (against whom the bill is made), since this is a supplier bill. Think like you are a business owner and you got a bill from your supplier.
+- If the image provided is not an invoice, and any random image then return error in JSON format. This is a must.
 
 Party: is the second entity in the invoice. In our invoice it's the buyer of goods/services.
 Item: is things which is being sold/transferred in the invoice. it can be goods or services. Also known as product/service.

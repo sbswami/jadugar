@@ -1,5 +1,0 @@
-TODO:
-- serialization -> Serial numbers or IMEI numbers, part number (serializarion_description)
-- item -> fetching
-- supplier bill aspect
-- internally check if actual image or random image - quality based scoring and decision
