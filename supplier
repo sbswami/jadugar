@@ -1,0 +1,141 @@
+You are provided with the image of a supplier's invoice. There can be multiple pages but all pages reflect a single invoice.
+The format of the invoice can vary significantly, including digital and handwritten forms, and it may also be in regional languages. 
+Your task is to extract information about the user (buyer) from the supplier's invoice. Also, parse or read image keeping in mind the next line important information.
+
+MOST IMPORTANT INSTRUCTION: If the image provided is not an invoice, and any random image then return error in JSON format. This is a must. While reading the image, you must not prefill any random information, all the below mentioned fields are very critical.
+
+Company: is the entity receiving the invoice (the user's company, which is the buyer of goods/services).
+Party: is the entity issuing the invoice (the supplier).
+Item: is things which are being sold/transferred in the invoice. It can be goods or services. Also known as product/service.
+
+Input: Image of a supplier's invoice.
+
+Example Instructions:
+
+Preprocessing:
+
+* Use OCR to convert the PDF or image into text.
+* Perform text cleaning to remove any noise.
+* Don't give me any kind of explanation just the JSON schema I asked for.
+* Try to make sense from the extracted data from the invoicing perspective, focusing on the buyer's information.
+
+Section Identification:
+
+* Use regex patterns or machine learning models to identify the text boundaries of each section.
+* Extract the text corresponding to each section, particularly the buyer's details.
+
+Field Extraction:
+
+* Don't extract extra keys apart from the schema I have provided.
+* Apply regex or predefined patterns to extract specific fields within each section.
+* Validate and clean the extracted data.
+
+Output: JSON object with the extracted information about the buyer (user's company).
+
+Info to extract:
+
+
+1. Company (base key: company) - This refers to the buyer's company (user's company)
+
+* company_name: Name of the buyer's business.
+* mobile_number: You can not just put any information here from your memory, since this is very critical invoice. Only fill the information which you are getting from image.
+* business_type: String value. [retailer, wholesaler, distributor, manufacturer, services]. For example sometimes business name have wholesaler / distributer in their name, or it can be services if they provide any type of service like hotels, cleaning, etc, etc. Select only from the values I have provided
+* incorporation_type: String value. [private_limited_company, public_limited_company, partnerships_company, limited_liability_partnership, one_person_company, sole_proprietorship, section_8_company, business_not_registered] - Select only from the values I have provided.
+* gst_number: GST number of the buyer's business.
+* industry_type: String value. Select only from values [safety_equipments,meat,photography,construction,salon,electrical_works,general_store,engineering,home_services,automotive,sport_equiments,gift_shop,interior_design,paints,dairy,travel,tailoring,agriculture,stationary,services,others,textiles,battery,scrap,service_centre,plywood,oil_and_gas,cable_internet,fmcg,furniture,consulting,jewellery,liquor,footwear,machinery,event_planning,packaging,utensils,mobiles_and_accessories,opticals,garment,fruit_and_vegitables,pharma,electronics,logistics,cleaning_pest,financial_services,information_technology,healthcare,education,photo_studio,real_estate,hotels,sanitary,gym,food_services,hardware]. Determine this from bill for example business name might have something related to industry or, if items have tablets or either businesses have pharma or medical in their name then it's an fmcg industry type. If value not found in above list, keep it null. Think harder here.
+* email: Email of the buyer's business.
+* pan_number: PAN number of the buyer's business. If only GSTIN present in invoice, extract PAN from GSTIN.
+* address: Address of the buyer's business. It's a JSON object with the following keys:
+* addressable_type: String value. Make this hardcoded as "Company".
+* city: String value. City of the buyer's business.
+* pincode: String value. Pincode of the buyer's business.
+* state: String value. State of the buyer's business.
+* street_address: String value. Street address of the buyer's business.
+* company_logo: String value. Generate a prompt to create a logo based on company_name, industry_type, and items present in the invoice. Prompt should be short and concise (100 characters).
+* company_settings.invoice.invoice_theme: String value. Theme of the invoice 
+
+1. theme_three: If the invoice is Tax Invoice
+2. theme_seven: For all other invoices
+
+* company_settings.invoice.show_previous_balance: boolean value. If invoice has mentioned previous balance.
+* company_settings.invoice.show_item_description: boolean value. If extra details present along with full item name.
+* company_settings.invoice.vehicle_number: boolean value. If vehicle number mentioned in invoice.
+* company_settings.invoice.po_number: boolean value. If purchase order number mentioned in invoice, else keep it false.
+* company_settings.invoice.eway_bill_number: boolean value. If eway bill number mentioned in invoice.
+* company_settings.invoice.business_additional_settings: Array of additional settings. If business level values present, add in this array. Email, name, address, mobile, pan, gstin. Add other than these fields.
+* key: String value. Additional setting name.
+* value: String value. Additional setting value.
+* Usage Context: If you find anything related to serialisation like Part No., IMEI, Serial No., you must have to skip that information.
+* company_settings.invoice.additional_settings: Array of additional settings. If other invoice level values present, add in this array. Ignore Invoice Date, Invoice Number, Due Date values for these.
+* key: String value. Additional setting name.
+* value: boolean value. true by default.
+* default: String value. If key name is kind of common information for all invoices, add that information here. else ignore. Also, if the invoice from supplier then it must be empty string.
+* company_settings.party.additional_settings: Array of additional settings. Don't add these fields: name, email, address, gstin, mobile, PAN, and add that information here apart from these fields. all key values apart from these fields should be added.
+* key: String value. Additional setting name.
+* value: Empty string.
+* default: Empty string.
+* hide_column: boolean value. false by default.
+* company_settings.item.mrp_info: boolean value. If MRP column present in items table.
+* company_settings.item.inventory_batching: boolean value. Identify if batch numbers are present in invoice or enable by default if industry type is in this list: [fmcg, pharma]. Other batching related information handle based on this flag. Think harder for this flag.
+* company_settings.invoice.invoice_columns: Array of additional settings. Strictly Don't consider these column names: Item Name, Item Serial No., Item Description, HSN/SAC, Discount, Amount.
+* key: String value. Additional setting name. We have some predefined column names, if similar or same name present in invoice add that key in this array. Predefined column names are [qty (quantity), rate (price), batch no., exp. date (expiry date), mfg. date (manufacturing date)], make these smallcase. Other than these defined values, add key name same as column name present in invoice.
+* value: boolean value. true by default.
+* company_settings.serialisation: This is a JSON object for tracking unique item codes.
+* enabled: Boolean value (false by default). Set to true if the items listed in the invoice have unique serial numbers (e.g., IMEI for mobile phones, serial numbers for electronics and IT products). Serialization should be enabled if the industry type aligns with industries like mobile phones, electronics, and IT.
+* description: String value. This is the key for serialization (e.g., IMEI, Part No., Serial No.). If enabled is true, this field must be populated with the relevant serial identifier.
+* Usage Context: Serialization is particularly useful for inventory management and tracking sold items. When customers return for repairs or replacements under warranty, businesses can use these unique serial numbers to find sales invoices and track product history.
+
+1. Items (base key: items) - This is the array of items present in invoice. Strictly just extract top 3 items, no more than that otherwise I will die
+
+* name: String value. Name of the item.
+* identification_code: String value. Identification code of the item. It can be HSN/SAC.
+* quantity: String value. Quantity of the item.
+* opening_stock: String value. Opening stock of the item. null if opening_stock not found.
+* unit: String value. Unit of the item. null if unit not found.
+* units: JSON object. It's a JSON object with the following keys.
+* primary_unit: String value. Unit of the item. null if unit not found.
+* secondary_unit: empty array.
+* notes: String value. Notes/description of the item. null if notes not found. It's not the name of the item.
+* sales_info: JSON object. It's a JSON object with the following keys.
+* is_tax_included: boolean value. true if tax is included in price. false if tax is not included in price.
+* gst_percentage: String value. GST percentage of the item. null if gst_percentage not found.
+* price_per_unit: String value. Price per unit of the item. null if rate / price per unit not found. It's the price of all quantity divided by quantity.
+* mrp: String value. MRP of the item, if MRP column present in invoice. null if mrp not found.
+* serial_nos: Array of serial numbers of the item. null if serial_nos not found.
+* serial_no: String value. Serial number of the item.
+
+1. Party (base key: party) - This would be an array of party details (supplier's details).
+
+* name: String value. Name of the supplier.
+* billing_address: JSON object. It's a JSON object with the following keys.
+* city: String value. City of the supplier.
+* pincode: String value. Pincode of the supplier.
+* state: String value. State of the supplier.
+* street_address: String value. Street address of the supplier.
+* shipping_address: JSON object. It's a JSON object with the following keys.
+* city: String value. City of the supplier.
+* pincode: String value. Pincode of the supplier.
+* state: String value. State of the supplier.
+* street_address: String value. Street address of the supplier.
+* mobile_number: String value. Mobile number of the supplier.
+* gst_number: String value. GSTIN of the supplier.
+* pan_number: String value. PAN number of the supplier. or grab it from GSTIN.
+* additional_fields: Array of additional fields. It's an array of JSON objects with the following keys.
+* key: String value. Additional field name. If any other information present in invoice apart from address, mobile, gst, pan add that information here.
+* value: String value. Additional field value.
+* email: String value. Email of the supplier.
+* gst_reg_state: String value. GST registration state of the supplier. Determine state name from state code present in GSTIN. Else pick it from address billing address state.
+
+1. Bank Account (base key: accounts) - This would be an array of bank accounts. Must only be fetched if I am specifying the invoice as a supplier invoice.
+
+* account_holder_name: String value. Name of the account holder.
+* account_number: String value. Account number.
+* bank_name: String value. Name of the bank.
+* branch_name: String value. Branch of the bank.
+* ifsc_code: String value. IFSC code of the bank.
+
+1. Confidence
+
+* confidence_score: String value. Confidence score of the invoice considering all the above extracted information. It should be between 0 to 100.
+
+Note: The focus is on extracting the buyer's (user's company) information from the supplier's invoice, while still capturing supplier details in the 'Party' section and maintaining all company settings and invoice settings.

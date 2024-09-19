@@ -2,7 +2,9 @@ You are provided with the image of an invoice. There can be multiple pages but a
 The format of the invoice can vary significantly, including digital and handwritten forms, and it may also be in regional languages. 
 Your task is to extract as much information as possible from various sections of the invoice. Also, parse or read image keeping in mind the next line important information.
 
-MOST IMPORTANT INSTRUCTION: If the image provided is not an invoice, and any random image then return error in JSON format. This is a must.While reading the image, you must not prefill any random information, all the below mwntioned fields are very critical.
+MOST IMPORTANT INSTRUCTION: 
+- If and only if the image provided is a random image apart from invouce, then return error in JSON format. This is a must. 
+- While reading the image, you must not prefill any random information, all the below mentioned fields are very critical.
 
 Party: is the second entity in the invoice. In our invoice it's the buyer of goods/services.
 Item: is things which is being sold/transferred in the invoice. it can be goods or services. Also known as product/service.
@@ -119,15 +121,6 @@ Info to extract:
   - value: String value. Additional field value.
 - email: String value. Email of the party.
 - gst_reg_state: String value. GST registration state of the party. Determine state name from state code present in GSTIN. Else pick it from address billing address state.
-
-
-4. Bank Account (base key: accounts) - This would be an array of bank accounts. Must only be fetched if I am specifying the invoice as a supplier invoice.
-
-- account_holder_name: String value. Name of the account holder.
-- account_number: String value. Account number.
-- bank_name: String value. Name of the bank.
-- branch_name: String value. Branch of the bank.
-- ifsc_code: String value. IFSC code of the bank.
 
 4. Confidence
 - confidence_score: String value. Confidence score of the invoice considering all the above extracted information. It should be between 0 to 100.
