@@ -45,7 +45,7 @@ router.post("/onboard", upload.single("file"), async (req, res) => {
   let promptContentFull;
 
   if (supplier) {
-    promptContentFull = fs.readFileSync(path.join(__dirname, "../prompts/_prompt"), "utf8");
+    promptContentFull = fs.readFileSync(path.join(__dirname, "../prompts/supplier_prompt"), "utf8");
     promptContent1 = fs.readFileSync(
       path.join(__dirname, "../prompts/supplier_prompt_part_1"),
       "utf8"
@@ -80,18 +80,7 @@ router.post("/onboard", upload.single("file"), async (req, res) => {
       return res.status(400).json({ error: "Unsupported file type" });
     }
 
-    // const response = await invokeLLM(
-    //   promptContentFull,
-    //   base64Image,
-    //   mimeType.split("/")[1],
-    //   supplier ? instructionsSupplierBill : instructionsOwnBill
-    // );
-
-    // res.json(response);
-
-    // Make API calls in parallel
-
-    const gstNumber = await getGST(base64Image);
+    const gstNumber = await getGST(base64Image, supplier);
 
     console.log("4o GST Number:", gstNumber);
 

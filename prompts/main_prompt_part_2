@@ -14,7 +14,16 @@ Info to extract:
 - notes: String value. Notes/description of the item. null if notes not found. It's not the name of the item.
 - sales_info: JSON object. It's a JSON object with the following keys.
   - is_tax_included: boolean value. true if tax is included in price. false if tax is not included in price.
-  - gst_percentage: String value. GST percentage of the item. null if gst_percentage not found.
+  - gst_percentage: String value. GST percentage of the item. Look for this information anywhere in the invoice, only add numbers without % symbol including but not limited to:
+      Near individual item details
+      As a line item near the subtotal
+      In the tax information section
+      Handle the following cases, regardless of where the information is found:
+      If CGST and SGST are split (e.g., 9% each), combine them (18% in this case)
+      If IGST is provided, use that value directly
+      Only use valid GST rates: 3%, 5%, 12%, 18%, or 28%
+      If the rate found doesn't match these valid rates, round to the nearest valid rate
+      null if no valid gst_percentage is found after checking the entire invoice
   - price_per_unit: String value. Price per unit of the item. null if rate / price per unit not found. It's the price of all quantity divided by quantity.
 - mrp: String value. MRP of the item, if MRP column present in invoice. null if mrp not found.
 - serial_nos: Array of serial numbers of the item. null if serial_nos not found.

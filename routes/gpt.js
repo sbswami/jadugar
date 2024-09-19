@@ -12,7 +12,7 @@ const headers = {
 const ENDPOINT =
   "https://flobizproduction.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-02-15-preview";
 
-async function getGST(base64image) {
+async function getGST(base64image, supplier = false) {
   // Payload for the request
   const payload = {
     messages: [
@@ -21,7 +21,9 @@ async function getGST(base64image) {
         content: [
           {
             type: "text",
-            text: "Find GST number from this image, and return if and only if you find it correct, otherwise null. don't share extra information"
+            text: supplier
+              ? "Treat the bill as from supplier, you have to fetch GST from billed to party, and return if and only if you find it correct, otherwise null. don't share extra information, just GST number"
+              : "Find GST number from this image, and return if and only if you find it correct, otherwise null. don't share extra information, just GST number"
           },
           { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64image}` } }
         ]
@@ -29,7 +31,7 @@ async function getGST(base64image) {
     ],
     temperature: 0.1,
     top_p: 0.95,
-    max_tokens: 100
+    max_tokens: 50
   };
   try {
     const response = await axios.post(ENDPOINT, payload, { headers });

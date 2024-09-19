@@ -7,24 +7,6 @@ Info to extract:
 - mobile_number: You can not just put any information here from your memory, since this is very critical invoice. Only fill the information which you are getting from image.
 - business_type: String value. [retailer, wholesaler, distributor, manufacturer, services]. For example sometimes business name have wholesaler / distributer in their name, or it can be services if they provide any type of service like hotels, cleaning, etc, etc. Select only from the values I have provided
 - incorporation_type: String value. [private_limited_company, public_limited_company, partnerships_company, limited_liability_partnership, one_person_company, sole_proprietorship, section_8_company, business_not_registered] - Select only from the values I have provided.
-- gst_number: GST Number (GSTIN) Format: It must be exactly 15 characters long, following the pattern:
-
-\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z\d]{1}[Z]{1}[A-Z\d]{1}
-Breakdown:
-2-digit state code
-10-character PAN
-1 entity number
-1 letter 'Z'
-1 check digit
-Extraction Guidelines:
-
-Look for labels such as "GSTIN", "GST No.", or "GST Number".
-Typically located near the top or in the seller's/buyer's information section.
-Verify the state code matches the address provided on the invoice.
-Validation Rules:
-
-Ensure the extracted GST number is exactly 15 characters long.
-If the extracted GST number does not meet this criterion or contains any additional characters, return null.
 
 - industry_type: String value. Select only from values [safety_equipments,meat,photography,construction,salon,electrical_works,general_store,engineering,home_services,automotive,sport_equiments,gift_shop,interior_design,paints,dairy,travel,tailoring,agriculture,stationary,services,others,textiles,battery,scrap,service_centre,plywood,oil_and_gas,cable_internet,fmcg,furniture,consulting,jewellery,liquor,footwear,machinery,event_planning,packaging,utensils,mobiles_and_accessories,opticals,garment,fruit_and_vegitables,pharma,electronics,logistics,cleaning_pest,financial_services,information_technology,healthcare,education,photo_studio,real_estate,hotels,sanitary,gym,food_services,hardware]. Determine this from bill for example business name might have something related to industry or, if items have tablets or either businesses have pharma or medical in their name then it's an fmcg industry type. If value not found in above list, keep it null. Think harder here.
 - sales_invoice_tnc: String value. Complete terms and conditions mentioned in invoice.
@@ -38,7 +20,7 @@ If the extracted GST number does not meet this criterion or contains any additio
   - street_address: String value. Street address of the business.
 - company_logo: String value. Generate a prompt to create a logo based on company_name, industry_type, and items present in the invoice. Prompt should be short and concise (100 characters).
 
-- company_settings.invoice.invoice_theme: String value. Theme of the invoice 
+- company_settings.invoice.invoice_theme: String value. Theme of the invoice
   1. theme_three: If the invoice is Tax Invoice
   2. theme_seven: For all other invoices
 - company_settings.invoice.show_previous_balance: boolean value. If invoice has mentioned previous balance.
@@ -93,4 +75,3 @@ Set to false if: No batch information is explicitly mentioned in the items secti
 - bank_name: String value. Name of the bank.
 - branch_name: String value. Branch of the bank.
 - ifsc_code: String value. IFSC code of the bank.
-

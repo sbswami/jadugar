@@ -5,7 +5,6 @@ Info to extract:
 * mobile_number: You can not just put any information here from your memory, since this is very critical invoice. Only fill the information which you are getting from image.
 * business_type: String value. [retailer, wholesaler, distributor, manufacturer, services]. For example sometimes business name have wholesaler / distributer in their name, or it can be services if they provide any type of service like hotels, cleaning, etc, etc. Select only from the values I have provided
 * incorporation_type: String value. [private_limited_company, public_limited_company, partnerships_company, limited_liability_partnership, one_person_company, sole_proprietorship, section_8_company, business_not_registered] - Select only from the values I have provided.
-* gst_number: GST number of the buyer's business.
 * industry_type: String value. Select only from values [safety_equipments,meat,photography,construction,salon,electrical_works,general_store,engineering,home_services,automotive,sport_equiments,gift_shop,interior_design,paints,dairy,travel,tailoring,agriculture,stationary,services,others,textiles,battery,scrap,service_centre,plywood,oil_and_gas,cable_internet,fmcg,furniture,consulting,jewellery,liquor,footwear,machinery,event_planning,packaging,utensils,mobiles_and_accessories,opticals,garment,fruit_and_vegitables,pharma,electronics,logistics,cleaning_pest,financial_services,information_technology,healthcare,education,photo_studio,real_estate,hotels,sanitary,gym,food_services,hardware]. Determine this from bill for example business name might have something related to industry or, if items have tablets or either businesses have pharma or medical in their name then it's an fmcg industry type. If value not found in above list, keep it null. Think harder here.
 * email: Email of the buyer's business.
 * pan_number: PAN number of the buyer's business. If only GSTIN present in invoice, extract PAN from GSTIN.
@@ -39,6 +38,24 @@ Info to extract:
   * hide_column: boolean value. false by default.
 * company_settings.item.mrp_info: boolean value. If MRP column present in items table.
 * company_settings.item.inventory_batching: boolean value. Set this to true only if a batch number column is visible on the invoice. Do not consider the industry type for this decision.
+Set this to true if and only if there is explicit evidence of batch tracking in the invoice. Look for the following indicators:
+
+A dedicated column in the item table with headers like "Batch No.", "Batch Number", "Batch", or close variations.
+Batch information listed alongside individual items, even if not in a separate column.
+Any clear mention of "batch" in relation to the items, such as "Batch: ABC123" or "B/N: XYZ789".
+Do not infer batching based on the industry type alone.
+The mere presence of expiry dates or manufacturing dates does not necessarily imply batching.
+If in doubt, default to false.
+Look carefully through the entire invoice, including headers, item details, and any notes or additional information sections.
+
+Check for any signs of serialization (unique item codes, IMEI numbers, etc.). If serialization is present, batching must be set to false.
+If you find clear evidence of batch numbers in the items section AND no evidence of serialization, set this to true. Otherwise, set it to false.
+
+Examples:
+
+Set to true if: You see a "Batch No." column in the items table, or "Batch: ABC123" listed with an item's details, AND there are no serial numbers or unique item codes.
+Set to false if: No batch information is explicitly mentioned in the items section, or if serial numbers/unique item codes are present.
+
 * company_settings.invoice.invoice_columns: Array of additional settings. Strictly Don't consider these column names: Item Name, Item Serial No., Item Description, HSN/SAC, Discount, Amount, UOM, Taxable Amount, CGST, SGST, IGST, Total Amount, and other similar terminologies.
   * key: String value. Additional setting name. We have some predefined column names, if similar or same name present in invoice add that key in this array. Predefined column names are [qty (quantity), rate (price), batch no., exp. date (expiry date), mfg. date (manufacturing date)], make these smallcase. Other than these defined values, add key name same as column name present in invoice.
   * value: boolean value. true by default.
