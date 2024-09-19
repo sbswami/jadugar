@@ -71,11 +71,31 @@ Info to extract:
 - company_settings.invoice.invoice_columns: Array of additional settings. Strictly Don't consider these column names: Item Name, Item Serial No., Item Description, HSN/SAC, Discount, Amount.
   - key: String value. Additional setting name. We have some predefined column names, if similar or same name present in invoice add that key in this array. Predefined column names are [qty (quantity), rate (price), batch no., exp. date (expiry date), mfg. date (manufacturing date)], make these smallcase. Other than these defined values, add key name same as column name present in invoice.
   - value: boolean value. true by default.
-- company_settings.serialisation: This is JSON object. Null by default.
-  - enabled: boolean value. false by default. true if any any kind of serialisation exists in items listing section. example Part No., Serial No., IMEI. Think serializarion in context of industry type or from invoice details.
+- company_settings.serialisation: This is JSON object. Null by default. You most find this information on the items table either in separate column or along side the item name.
+  - enabled: boolean value. false by default. true if any kind of serialisation exists in items listing section. example Part No., Serial No., IMEI. Think serializarion in context of industry type or from invoice details.
   - description: String value. It's a key of serialisation. example IMEI, Part No., Serial No. It should not be empty if enabled is true.
 
-2. Bank Account (base key: accounts) - This would be an array of bank accounts. Must only be fetched if I am specifying the invoice as a supplier invoice.
+2. Items (base key: items) - This is the array of items present in invoice.
+
+- name: String value. Name of the item.
+- identification_code: String value. Identification code of the item. It can be HSN/SAC.
+- quantity: String value. Quantity of the item.
+- opening_stock: String value. Opening stock of the item. null if opening_stock not found.
+- unit: String value. Unit of the item. null if unit not found.
+- units: JSON object. It's a JSON object with the following keys.
+  - primary_unit: String value. Unit of the item. null if unit not found.
+  - secondary_unit: empty array.
+- notes: String value. Notes/description of the item. null if notes not found. It's not the name of the item.
+- sales_info: JSON object. It's a JSON object with the following keys.
+  - is_tax_included: boolean value. true if tax is included in price. false if tax is not included in price.
+  - gst_percentage: String value. GST percentage of the item. null if gst_percentage not found.
+  - price_per_unit: String value. Price per unit of the item. null if rate / price per unit not found. It's the price of all quantity divided by quantity.
+- mrp: String value. MRP of the item, if MRP column present in invoice. null if mrp not found.
+- serial_nos: Array of serial numbers of the item. null if serial_nos not found.
+  - serial_no: String value. Serial number of the item.
+
+
+3. Bank Account (base key: accounts) - This would be an array of bank accounts. Must only be fetched if I am specifying the invoice as a supplier invoice.
 
 - account_holder_name: String value. Name of the account holder.
 - account_number: String value. Account number.
