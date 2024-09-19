@@ -12,7 +12,7 @@ app.use(express.json());
 
 // Configuration
 const API_KEY = process.env.OPENAI_API_KEY;
-const IMAGE_PATH = "samples/Nanonets photo (2).jpeg";
+const IMAGE_PATH = "samples/Nanonets photo.jpeg";
 const imageBuffer = fs.readFileSync(IMAGE_PATH);
 const encodedImage = base64.fromByteArray(imageBuffer);
 
@@ -32,7 +32,7 @@ const payload = {
       ]
     }
   ],
-  temperature: 0.7,
+  temperature: 0.6,
   top_p: 0.95,
   max_tokens: 2000
 };

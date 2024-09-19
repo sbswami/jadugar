@@ -62,11 +62,12 @@ Info to extract:
 - company_settings.invoice.business_additional_settings: Array of additional settings. If business level values present, add in this array. Email, name, address, mobile, pan, gstin. Add other than these fields.
   - key: String value. Additional setting name.
   - value: String value. Additional setting value.
+  - Usage Context: If you find anything related to serialisation like Part No., IMEI, Serial No., you must have to skip that information.
 - company_settings.invoice.additional_settings: Array of additional settings. If other invoice level values present, add in this array. Ignore Invoice Date, Invoice Number, Due Date values for these.
   - key: String value. Additional setting name.
   - value: boolean value. true by default.
   - default: String value. If key name is kind of common information for all invoices, add that information here. else ignore. Also, if the invoice from supoplier then it must be empty string.
-- company_settings.party.additional_settings: Array of additional settings. If party/buyer level values present other than name, address, gstin, mobile, PAN add that information here. all key values apart from these fields should be added.
+- company_settings.party.additional_settings: Array of additional settings. Don't add these fields: name, email, address, gstin, mobile, PAN, and add that information here apart from these fields. all key values apart from these fields should be added.
   - key: String value. Additional setting name.
   - value: Empty string.
   - default: Empty string.
@@ -76,9 +77,10 @@ Info to extract:
 - company_settings.invoice.invoice_columns: Array of additional settings. Strictly Don't consider these column names: Item Name, Item Serial No., Item Description, HSN/SAC, Discount, Amount.
   - key: String value. Additional setting name. We have some predefined column names, if similar or same name present in invoice add that key in this array. Predefined column names are [qty (quantity), rate (price), batch no., exp. date (expiry date), mfg. date (manufacturing date)], make these smallcase. Other than these defined values, add key name same as column name present in invoice.
   - value: boolean value. true by default.
-- company_settings.serialisation: This is JSON object. Null by default. You most find this information on the items table either in separate column or along side the item name.
-  - enabled: boolean value. false by default. true if any kind of serialisation exists in items listing section. example Part No., Serial No., IMEI. Think serializarion in context of industry type or from invoice details.
-  - description: String value. It's a key of serialisation. example IMEI, Part No., Serial No. It should not be empty if enabled is true.
+- company_settings.serialisation: This is a JSON object for tracking unique item codes.
+  - enabled: Boolean value (false by default). Set to true if the items listed in the invoice have unique serial numbers (e.g., IMEI for mobile phones, serial numbers for electronics and IT products). Serialization should be enabled if the industry type aligns with industries like mobile phones, electronics, and IT.
+  - description: String value. This is the key for serialization (e.g., IMEI, Part No., Serial No.). If enabled is true, this field must be populated with the relevant serial identifier.
+  - Usage Context: Serialization is particularly useful for inventory management and tracking sold items. When customers return for repairs or replacements under warranty, businesses can use these unique serial numbers to find sales invoices and track product history.
 
 2. Items (base key: items) - This is the array of items present in invoice.
 
@@ -128,3 +130,6 @@ Info to extract:
 - bank_name: String value. Name of the bank.
 - branch_name: String value. Branch of the bank.
 - ifsc_code: String value. IFSC code of the bank.
+
+4. Confidence
+- confidence_score: String value. Confidence score of the invoice considering all the above extracted information. It should be between 0 to 100.
