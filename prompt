@@ -113,12 +113,12 @@ Info to extract:
   - street_address: String value. Street address of the party.
 - mobile_number: String value. Mobile number of the party.
 - gst_number: String value. GSTIN of the party.
-- pan_number: String value. PAN number of the party.
+- pan_number: String value. PAN number of the party. or grab it from GSTIN.
 - additional_fields: Array of additional fields. It's an array of JSON objects with the following keys.
   - key: String value. Additional field name. If any other information present in invoice apart from address, mobile, gst, pan add that information here.
   - value: String value. Additional field value.
 - email: String value. Email of the party.
-- gst_reg_state: String value. GST registration state of the party.
+- gst_reg_state: String value. GST registration state of the party. Determine state name from state code present in GSTIN. Else pick it from address billing address state.
 
 
 4. Bank Account (base key: accounts) - This would be an array of bank accounts. Must only be fetched if I am specifying the invoice as a supplier invoice.
