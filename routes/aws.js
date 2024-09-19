@@ -81,13 +81,13 @@ router.post("/onboard", upload.single("file"), async (req, res) => {
       invokeLLM(
         promptContent1,
         base64Image,
-        mimeType,
+        mimeType.split("/")[1],
         supplier ? instructionsSupplierBill : instructionsOwnBill
       ),
       invokeLLM(
         promptContent2,
         base64Image,
-        mimeType,
+        mimeType.split("/")[1],
         supplier ? instructionsSupplierBill : instructionsOwnBill
       )
     ]);
@@ -126,7 +126,7 @@ async function invokeLLM(prompt, base64Image, mimeType, instructions) {
           },
           {
             image: {
-              format: "png",
+              format: mimeType,
               source: {
                 bytes: Buffer.from(base64Image, "base64")
               }
