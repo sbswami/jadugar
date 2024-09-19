@@ -28,4 +28,35 @@ Field Extraction:
 - Apply regex or predefined patterns to extract specific fields within each section.
 - Validate and clean the extracted data.
 
+Before extracting and structuring the information, follow these steps:
+
+1. Invoice Type Analysis:
+   - Examine the overall layout and content of the invoice.
+   - Identify key sections: header, item list, totals, and footer.
+
+2. Company Identification:
+   - Locate and differentiate between the supplier's and buyer's information.
+   - Look for company names, addresses, and tax identification numbers (GST, PAN).
+   - Determine which entity is the focus of our extraction (user's company for supplier invoices, or the company itself for user invoices).
+
+3. Item and Pricing Structure:
+   - Analyze the structure of the item list.
+   - Identify columns and their purposes (e.g., item name, quantity, price, tax).
+   - Look for any unique identifiers or codes (HSN/SAC, serial numbers).
+
+4. Tax and Total Calculation:
+   - Examine how taxes are calculated and presented.
+   - Look for subtotals, tax amounts, and final totals.
+   - Identify any additional charges or discounts.
+
+5. Additional Information:
+   - Scan for any extra details like payment terms, shipping information, or special notes.
+   - Identify any unique features of this invoice that might require special attention.
+
+6. Confidence Assessment:
+   - Evaluate the clarity and completeness of the information on the invoice.
+   - Consider any ambiguities or potential issues in extracting accurate information.
+
+After thinking through these steps, proceed with the extraction and structuring of information as per the provided schema.
+
 Output: JSON object with the extracted information.

@@ -5,6 +5,7 @@ const path = require("path");
 const multer = require("multer");
 const AWS = require("aws-sdk");
 const { fromBuffer } = require("pdf2pic");
+const { getGST } = require("./gpt");
 
 const upload = multer({ limits: { fileSize: 10 * 1024 * 1024 } }); // 10 MB limit
 
@@ -41,8 +42,10 @@ router.post("/onboard", upload.single("file"), async (req, res) => {
 
   let promptContent1;
   let promptContent2;
+  let promptContentFull;
 
   if (supplier) {
+    promptContentFull = fs.readFileSync(path.join(__dirname, "../prompts/_prompt"), "utf8");
     promptContent1 = fs.readFileSync(
       path.join(__dirname, "../prompts/supplier_prompt_part_1"),
       "utf8"
@@ -52,6 +55,7 @@ router.post("/onboard", upload.single("file"), async (req, res) => {
       "utf8"
     );
   } else {
+    promptContentFull = fs.readFileSync(path.join(__dirname, "../prompts/main_prompt"), "utf8");
     promptContent1 = fs.readFileSync(path.join(__dirname, "../prompts/main_prompt_part_1"), "utf8");
     promptContent2 = fs.readFileSync(path.join(__dirname, "../prompts/main_prompt_part_2"), "utf8");
   }
@@ -76,7 +80,21 @@ router.post("/onboard", upload.single("file"), async (req, res) => {
       return res.status(400).json({ error: "Unsupported file type" });
     }
 
+    // const response = await invokeLLM(
+    //   promptContentFull,
+    //   base64Image,
+    //   mimeType.split("/")[1],
+    //   supplier ? instructionsSupplierBill : instructionsOwnBill
+    // );
+
+    // res.json(response);
+
     // Make API calls in parallel
+
+    const gstNumber = await getGST(base64Image);
+
+    console.log("4o GST Number:", gstNumber);
+
     const [response1, response2] = await Promise.all([
       invokeLLM(
         promptContent1,
@@ -91,6 +109,8 @@ router.post("/onboard", upload.single("file"), async (req, res) => {
         supplier ? instructionsSupplierBill : instructionsOwnBill
       )
     ]);
+
+    response1.company.gst_number = gstNumber;
 
     const combinedResponse = {
       ...response1,
