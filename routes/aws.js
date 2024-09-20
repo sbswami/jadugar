@@ -42,7 +42,7 @@ const instructionsSupplierBill = fs.readFileSync(
 
 // Route for onboarding with file upload
 router.post("/onboard", upload.single("file"), async (req, res) => {
-  const supplier = Boolean(req.body.supplier);
+  const supplier = req.body.supplier === "true";
 
   let promptContent1;
   let promptContent2;
