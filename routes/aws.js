@@ -80,9 +80,9 @@ router.post("/onboard", upload.single("file"), async (req, res) => {
       return res.status(400).json({ error: "Unsupported file type" });
     }
 
-    const gstNumber = await getGST(base64Image, supplier);
+    // const gstNumber = await getGST(base64Image, supplier);
 
-    console.log("4o GST Number:", gstNumber);
+    // console.log("4o GST Number:", gstNumber);
 
     const [response1, response2] = await Promise.all([
       invokeLLM(
@@ -99,7 +99,7 @@ router.post("/onboard", upload.single("file"), async (req, res) => {
       )
     ]);
 
-    response1.company.gst_number = gstNumber;
+    // response1.company.gst_number = gstNumber;
 
     const combinedResponse = {
       ...response1,
@@ -166,43 +166,19 @@ async function invokeLLM(prompt, base64Image, mimeType, instructions) {
   }
 }
 
-// Function to convert PDF to image (using Ghostscript)
-async function convertPdfToImage(pdfBuffer) {
+async function convertPdfToImage(fileBuffer) {
   try {
-    const options = {
-      density: 100,
-      saveFilename: "untitled",
-      format: "png",
-      preserveAspectRatio: true,
-      quality: 80
-    };
+    const { pdf } = await import("pdf-to-img");
+    const document = await pdf(fileBuffer, { scale: 2.0 });
 
-    const convert = fromBuffer(pdfBuffer, options);
-    const pageToConvertAsImage = 1;
-
-    const result = await convert(pageToConvertAsImage);
-
-    if (!result.toString("base64")) {
-      throw new Error("Failed to generate Base64 image data from PDF.");
-    }
-
-    // Read the image file as a buffer
-    const imageBuffer = await fs.readFileSync(result.path);
+    const imageBuffer = await document.getPage(1);
 
     // Convert the image buffer to a Base64 string
     const base64Image = imageBuffer.toString("base64");
 
-    fs.unlinkSync(result.path); // Delete the temporary image file
+    fs.unlinkSync("temp.png");
     return base64Image;
   } catch (error) {
-    if (
-      error.message.includes("Postscript delegate failed") ||
-      error.message.includes("gs: command not found")
-    ) {
-      throw new Error(
-        "Ghostscript is required for PDF conversion but was not found. Please install Ghostscript."
-      );
-    }
     console.error("Error converting PDF to image:", error);
     throw error;
   }
