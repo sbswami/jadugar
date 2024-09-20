@@ -36,11 +36,11 @@ Info to extract:
   - pincode: String value. Pincode of the business.
   - state: String value. State of the business.
   - street_address: String value. Street address of the business.
-- company_logo: String value. Generate a prompt to create a logo based on company_name, industry_type, and items present in the invoice. Prompt should be short and concise (100 characters).
-
+- company_logo: String value. Generate a prompt to create a logo based on company_name, industry_type, and items present in the invoice. Prompt should be short and concise (100 characters). Also, add background color for logo.
 - company_settings.invoice.invoice_theme: String value. Theme of the invoice
-  1. theme_three: If the invoice is Tax Invoice
-  2. theme_seven: For all other invoices
+  Determine the theme based on: Invoice type: Tax Invoice or Non-tax Invoice, and Image resolution: A4 = length > width, A5 = width > height. For A4, use theme_three for tax invoices and theme_seven for non-tax invoices. For A5, use theme_four for tax invoices and theme_six for non-tax invoices. Always fill this field based on the above criteria. Check in items section for this taxable information. If you couldn't find any taxable information, then consider it as theme_seven.
+- company_settings.invoice.invoice_theme_color_light: Hex value - Pick the same hex color from company_logo. This will be used for invoice theme, and must be very light shade of the color. Remember very light shade.
+- company_settings.invoice.invoice_theme_color_dark: Hex value - Pick a darker color related to the above key (invoice_theme_color_light). Again, it must be of same shade
 - company_settings.invoice.show_previous_balance: boolean value. If invoice has mentioned previous balance.
 - company_settings.invoice.show_item_description: boolean value. If extra details present along with full item name.
 - company_settings.invoice.vehicle_number: boolean value. If vehicle number mentioned in invoice.
