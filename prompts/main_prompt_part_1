@@ -5,23 +5,38 @@ Info to extract:
 
 - name: Name of the business.
 - mobile_number: You can not just put any information here from your memory, since this is very critical invoice. Only fill the information which you are getting from image. Extract exact 10-digit Indian mobile number from the invoice image. If multiple numbers are present, separated by “/” or space, list one number only, do not pass more than one mobile number otherwise I will get fired.
-- gst_number: GST Number (GSTIN) Format: It must be exactly 15 characters long, following the Regex:
-  \d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z\d]{1}[Z]{1}[A-Z\d]{1}
+- gst_number: 
+  Extract the GSTIN (GST Number) from the provided invoice image with 100% accuracy. If the extraction is not certain or does not match the required format, return null.
+  GSTIN Format Requirements:
+  - Length: Exactly 15 characters.
+  - Regex Pattern: `\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z\d]{1}[Z]{1}[A-Z\d]{1}`
+
   Breakdown:
-  2-digit state code
-  10-character PAN
-  1 entity number
-  1 letter 'Z'
-  1 check digit
+  - 2-digit state code
+  - 10-character PAN
+  - 1 character entity number
+  - 1 character 'Z'
+  - 1 character check digit
+
   Extraction Guidelines:
+  1. Labels to Look For:
+    - "GSTIN"
+    - "GST No."
+    - "GST Number"
+    
+  2. Common Locations:
+    - Near the top section of the invoice.
+    - Within the seller's or buyer's information section.
+    
+  3. Additional Verification:
+    - Ensure the state code matches the address provided on the invoice.
 
-  Look for labels such as "GSTIN", "GST No.", or "GST Number".
-  Typically located near the top or in the seller's/buyer's information section.
-  Verify the state code matches the address provided on the invoice.
   Validation Rules:
-
-  Ensure the extracted GST number is exactly 15 characters long.
-  If the extracted GST number does not meet this criterion or contains any additional characters, return null.
+  1. Confirm the extracted GSTIN is exactly 15 characters long.
+  2. Match the extracted GSTIN against the specified regex format.
+    - If it does not match or contains any additional characters, return **null**.
+  GST Number Output:
+  - The correct GSTIN if the extraction is accurate and matches the specified format. null if the extraction is uncertain or does not meet the criteria.
 
 - business_type: String value. [retailer, wholesaler, distributor, manufacturer, services]. For example sometimes business name have wholesaler / distributer in their name, or it can be services if they provide any type of service like hotels, cleaning, etc, etc. Select only from the values I have provided
 - incorporation_type: String value. [private_limited_company, public_limited_company, partnerships_company, limited_liability_partnership, one_person_company, sole_proprietorship, section_8_company, business_not_registered] - Select only from the values I have provided.
@@ -50,7 +65,7 @@ Info to extract:
   - key: String value. Additional setting name.
   - value: String value. Additional setting value.
   - Usage Context: If you find anything related to serialisation like Part No., IMEI, Serial No., you must have to skip that information.
-- company_settings.invoice.additional_settings: Array of additional settings. If other invoice level values present, add in this array. Ignore Invoice Date, Invoice Number, Due Date, IRN, Ack No, and Ack Date values for these.
+- company_settings.invoice.additional_settings: Array of additional settings. If other invoice level values present, add in this array. Ignore Invoice Date, Invoice Number, Due Date, IRN, Ack No, and Ack Date values for these. If you cannot find anything keep this empty array.
   - key: String value. Additional setting name.
   - value: boolean value. true by default.
   - default: String value. If key name is kind of common information for all invoices, add that information here. else ignore. Also, if the invoice from supoplier then it must be empty string.
@@ -78,7 +93,7 @@ Examples:
 Set to true if: You see a "Batch No." column in the items table, or "Batch: ABC123" listed with an item's details, AND there are no serial numbers or unique item codes.
 Set to false if: No batch information is explicitly mentioned in the items section, or if serial numbers/unique item codes are present.
 
-- company_settings.invoice.invoice_columns: Array of additional settings. Strictly Don't consider these column names: Item Name, Item Serial No., Item Description, HSN/SAC, Discount, Amount, UOM, Taxable Amount, CGST, SGST, IGST, Total Amount (and other similar terminologies).
+- company_settings.invoice.invoice_columns: Array of additional settings. Strictly Don't consider these column names: Item Name, Item Serial No., Item Description, HSN/SAC, Discount, Amount, UOM, Taxable Amount, CGST, SGST, IGST, Total Amount, Unit (pcs, kgs, pkt, etc) (and other similar terminologies).
   - key: String value. Additional setting name. We have some predefined column names, if similar or same name present in invoice add that key in this array. Predefined column names are [qty (quantity), rate (price), batch no., exp. date (expiry date), mfg. date (manufacturing date)], make these smallcase. Other than these defined values, add key name same as column name present in invoice.
   - value: boolean value. true by default.
 - company_settings.serialisation: This is a JSON object for tracking unique item codes.

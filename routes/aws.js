@@ -180,7 +180,6 @@ async function convertPdfToImage(fileBuffer) {
     // Convert the image buffer to a Base64 string
     const base64Image = imageBuffer.toString("base64");
 
-    fs.unlinkSync("temp.png");
     return base64Image;
   } catch (error) {
     console.error("Error converting PDF to image:", error);

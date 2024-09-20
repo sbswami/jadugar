@@ -46,7 +46,7 @@ Info to extract:
   * key: String value. Additional setting name.
   * value: String value. Additional setting value.
   * Usage Context: If you find anything related to serialisation like Part No., IMEI, Serial No., you must have to skip that information.
-* company_settings.invoice.additional_settings: Array of additional settings. If other invoice level values present, add in this array. Ignore Invoice Date, Invoice Number, Due Date, IRN, Ack No, and Ack Date values for these.
+* company_settings.invoice.additional_settings: Array of additional settings. If other invoice level values present, add in this array. Ignore Invoice Date, Invoice Number, Due Date, IRN, Ack No, and Ack Date values for these. If you cannot find anything keep this empty array.
   * key: String value. Additional setting name.
   * value: boolean value. true by default.
   * default: String value. If key name is kind of common information for all invoices, add that information here. else ignore. Also, if the invoice from supplier then it must be empty string.
@@ -75,7 +75,7 @@ Examples:
 Set to true if: You see a "Batch No." column in the items table, or "Batch: ABC123" listed with an item's details, AND there are no serial numbers or unique item codes.
 Set to false if: No batch information is explicitly mentioned in the items section, or if serial numbers/unique item codes are present.
 
-* company_settings.invoice.invoice_columns: Array of additional settings. Strictly Don't consider these column names: Item Name, Item Serial No., Item Description, HSN/SAC, Discount, Amount, UOM, Taxable Amount, CGST, SGST, IGST, Total Amount, and other similar terminologies.
+* company_settings.invoice.invoice_columns: Array of additional settings. Strictly Don't consider these column names: Item Name, Item Serial No., Item Description, HSN/SAC, Discount, Amount, UOM, Taxable Amount, CGST, SGST, IGST, Total Amount, Unit (pcs, kgs, pkt, etc), and other similar terminologies.
   * key: String value. Additional setting name. We have some predefined column names, if similar or same name present in invoice add that key in this array. Predefined column names are [qty (quantity), rate (price), batch no., exp. date (expiry date), mfg. date (manufacturing date)], make these smallcase. Other than these defined values, add key name same as column name present in invoice.
   * value: boolean value. true by default.
 * company_settings.serialisation: This is a JSON object for tracking unique item codes.
