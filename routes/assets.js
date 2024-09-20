@@ -9,7 +9,7 @@ const fontPath = "GreatVibes-Regular.ttf";
 registerFont(fontPath, { family: "GreatVibes" });
 
 router.post("/sign", (req, res) => {
-  const canvas = createCanvas(300, 110);
+  const canvas = createCanvas(350, 100);
   const ctx = canvas.getContext("2d");
 
   // Set the canvas background to transparent (default, so no need to set explicitly)
@@ -34,9 +34,14 @@ router.post("/sign", (req, res) => {
 
   // Save the canvas image as a PNG file with a transparent background
   const buffer = canvas.toBuffer("image/png");
-  fs.writeFileSync("sign.png", buffer);
 
-  res.json({ message: "Signature created successfully." });
+  // Set the appropriate response headers for an image
+  res.set({
+    "Content-Type": "image/png"
+  });
+
+  // Send the image buffer directly to the client
+  res.status(200).send(buffer);
 });
 
 router.post("/logo", async (req, res) => {
