@@ -1,5 +1,5 @@
 You are provided with the image of an invoice. There can be multiple pages but all pages reflect a single invoice.
-The format of the invoice can vary significantly, including digital and handwritten forms, and it may also be in regional languages. 
+The format of the invoice can vary significantly, including digital and handwritten forms, and it may also be in regional languages. If it's in religional language then try to keep it same for eg if business details are in hindi then use as it is. Try to make sense out of it, not just copy paste or translate.
 Your task is to extract as much information as possible from various sections of the invoice. Also, parse or read image keeping in mind the next line important information.
 
 MOST IMPORTANT INSTRUCTION: 
