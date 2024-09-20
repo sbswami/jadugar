@@ -166,14 +166,12 @@ async function invokeLLM(prompt, base64Image, mimeType, instructions) {
   }
 }
 
-// Function to convert PDF to image (using Ghostscript)
 async function convertPdfToImage(fileBuffer) {
   try {
     const { pdf } = await import("pdf-to-img");
     const document = await pdf(fileBuffer, { scale: 2.0 });
 
     const imageBuffer = await document.getPage(1);
-    const imagePath = fs.writeFileSync("temp.png", imageBuffer);
 
     // Convert the image buffer to a Base64 string
     const base64Image = imageBuffer.toString("base64");
