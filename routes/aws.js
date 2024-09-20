@@ -7,6 +7,10 @@ const AWS = require("aws-sdk");
 const { fromBuffer } = require("pdf2pic");
 const { getGST } = require("./gpt");
 
+router.get("/health-check", (req, res) => {
+  res.status(200).json({ message: "Server is running" });
+});
+
 const upload = multer({ limits: { fileSize: 10 * 1024 * 1024 } }); // 10 MB limit
 
 // Validate critical environment variables
