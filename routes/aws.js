@@ -80,9 +80,9 @@ router.post("/onboard", upload.single("file"), async (req, res) => {
       return res.status(400).json({ error: "Unsupported file type" });
     }
 
-    const gstNumber = await getGST(base64Image, supplier);
+    // const gstNumber = await getGST(base64Image, supplier);
 
-    console.log("4o GST Number:", gstNumber);
+    // console.log("4o GST Number:", gstNumber);
 
     const [response1, response2] = await Promise.all([
       invokeLLM(
@@ -99,7 +99,7 @@ router.post("/onboard", upload.single("file"), async (req, res) => {
       )
     ]);
 
-    response1.company.gst_number = gstNumber;
+    // response1.company.gst_number = gstNumber;
 
     const combinedResponse = {
       ...response1,
